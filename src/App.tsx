@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react
 import { Moon, Sun, Wrench } from "lucide-react"
 
 import { CountryFilter } from "@/components/CountryFilter"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { NodeCard } from "@/components/NodeCard"
 import { Summary } from "@/components/Summary"
 import { Button } from "@/components/ui/button"
@@ -269,9 +270,11 @@ export default function App() {
           !nodes ? (
             <Skeleton className="h-96" />
           ) : selected ? (
-            <Suspense fallback={<Skeleton className="h-96" />}>
-              <NodeDetail node={selected} />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<Skeleton className="h-96" />}>
+                <NodeDetail node={selected} />
+              </Suspense>
+            </ErrorBoundary>
           ) : (
             <p className="py-16 text-center text-sm text-muted-foreground">
               节点不存在或未公开。<button className="underline" onClick={() => go(null)}>返回列表</button>
@@ -298,13 +301,17 @@ export default function App() {
                 该国家没有节点。<button className="underline" onClick={() => setCountry(null)}>查看全部</button>
               </p>
             ) : view === "table" ? (
-              <Suspense fallback={<ViewSkeleton view="table" />}>
-                <NodeTable nodes={visible} onOpen={go} quality={quality} />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<ViewSkeleton view="table" />}>
+                  <NodeTable nodes={visible} onOpen={go} quality={quality} />
+                </Suspense>
+              </ErrorBoundary>
             ) : view === "map" ? (
-              <Suspense fallback={<ViewSkeleton view="map" />}>
-                <WorldMap nodes={visible} onOpen={go} country={country} />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<ViewSkeleton view="map" />}>
+                  <WorldMap nodes={visible} onOpen={go} country={country} />
+                </Suspense>
+              </ErrorBoundary>
             ) : (
               <div className="grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {visible.map((n: Node) => (
