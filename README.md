@@ -76,24 +76,25 @@ npm run build && npm run package-theme
 | `GET /api/me` | 站点名、登录状态、公开页开关 |
 | `GET /api/nodes` | 节点列表、实时指标和累计流量 |
 | `GET /api/nodes/{id}/metrics` | 历史指标和延迟记录 |
+| `GET /api/nodes/quality` | 全节点最近一小时的延迟/丢包带宽，按节点 id 给出；公开页开启时匿名可用 |
 | `GET /api/ws` | 每 2 秒推送一次节点快照的 WebSocket |
 
 `metrics` 的三个查询参数都可省：
 
 - `hours=N` 窗口宽度。**匿名上限 168，登录后 2160**，超出静默 clamp——降采样限的是响应行数，这个
   上限限的是 hub 扫描多少行
-- `points=W` 调用方画得下的点数，只会让 hub 抽得更稀，不会更密
+- `points=W` 调用方能画的桶数上限，clamp 到 [60, 1440]，超出两端都按端点算：超过 1440 等于不传（1440 是默认上限），低于 60 会被拉到 60——所以传小值不会得到更稀的响应
 - `series=metrics|ping` 只取要画的那一半，省掉的那半原本占响应的三分之一到三分之二
 
 探测曲线的名字在响应的 `probes` 里随样本一起下发，匿名可读，所以画延迟图不需要第二个请求，也不
 需要管理员身份。
 
-整个窗口的丢包率在响应的 `loss` 里，按探测 id 给出百分比，没丢包的探测不出现。**不要拿样本行里
+整个窗口的丢包率在响应的 `loss` 里，按探测 id 给出**未取整的浮点百分比**（0.14% 不会被取整成 0%，因为 0% 表示没丢）；只在 `series=ping` 那半里出现；没丢包的探测不出现。**不要拿样本行里
 的 `loss` 自己平均**：那一个是所在桶的百分比，除数已经丢了，而各桶样本数天然不等——窗口首尾两桶
 本来就是残缺的，探测启停、节点掉线、agent 跳过一轮都会再造几个。十三次里丢一次，平均桶百分比会
 算出 50%。
 
-匿名访问 `GET /api/nodes` 仅返回 `public=1` 的节点，响应中不含 `ip`、`hostname`、`remark`。字段定义以 hub 的 `src/api.rs` 为准。
+匿名访问 `GET /api/nodes` 仅返回 `public=1` 的节点，响应中不含 `ip`、`ipv4`、`ipv6`、`observed_ip`、`hostname`、`remark`、`agent_version`、`token`，`metrics` 也按白名单裁剪。字段定义以 hub 的 `src/api.rs` 为准。
 
 未知路径回落到主题的 `dist/index.html`，客户端路由可用。`/admin/*` 由 hub 内置后台接管，不属于主题契约。
 
