@@ -5,7 +5,6 @@ import {
   Tooltip, XAxis, YAxis,
 } from "recharts"
 
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Country, Status } from "@/components/NodeCard"
 import { OsIcon } from "@/components/OsIcon"
@@ -301,11 +300,6 @@ export function NodeDetail({ node }: { node: Node }) {
         <h2 className="truncate text-lg font-medium">{node.name}</h2>
         <Country node={node} />
         <Status node={node} />
-        {node.agent_version && (
-          <Badge variant="outline" className="font-normal">
-            agent {node.agent_version}
-          </Badge>
-        )}
       </div>
 
       {/* One flat row of facts: what is left after the traffic figures moved
