@@ -40,7 +40,6 @@ export type Node = {
   mem_total: number
   swap_total: number
   disk_total: number
-  agent_version: string
   price: number
   currency: string
   billing_cycle: string
