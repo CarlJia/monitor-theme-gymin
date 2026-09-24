@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { CountryFlag } from "@/components/CountryFlag"
 import { Meter } from "@/components/Meter"
 import { OsIcon } from "@/components/OsIcon"
+import { PublicRemark } from "@/components/PublicRemark"
 import { QualitySlot } from "@/components/QualityBand"
 import type { Node } from "@/lib/api"
 import { bytes, daysUntil, FOREVER, osName, pair, percent, rate, uptime } from "@/lib/format"
@@ -202,6 +203,11 @@ export function NodeCard({
           还没有接入。在后台生成安装命令并执行一次。
         </p>
       )}
+      {/* 公开备注:紧凑呈现,限高避免撑破卡片栅格;详情页展示完整版。 */}
+      <PublicRemark
+        html={node.public_remark_html}
+        className="mt-4 border-t pt-3 text-xs text-muted-foreground line-clamp-3"
+      />
     </Card>
   )
 }
