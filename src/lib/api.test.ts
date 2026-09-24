@@ -38,3 +38,13 @@ for (const raw of ["", "{", "null", "5", '"str"', JSON.stringify({}), JSON.strin
   assert.equal(parseNodesFrame(raw), null, `非节点帧返回 null：${raw}`)
 }
 console.log("invalid live reports are isolated")
+
+// public_remark_html：字符串原样透传（引用相等），非字符串降级为 undefined，
+// 且折进 safeNodes 的引用相等提前返回里（不绕过降级）。
+const withRemark = (v: unknown) => ({ ...node, public_remark_html: v }) as unknown as Node
+const goodRemark = withRemark("<p>hi</p>")
+assert.equal(safeNodes([goodRemark])[0], goodRemark, "字符串 public_remark_html 原样返回、不复制")
+assert.equal(safeNodes([withRemark(123)])[0].public_remark_html, undefined, "非字符串降级为 undefined")
+assert.equal(safeNodes([withRemark({})])[0].public_remark_html, undefined, "对象降级为 undefined")
+assert.equal(safeNodes([node])[0].public_remark_html, undefined, "缺失字段不凭空补")
+console.log("public_remark_html normalized")

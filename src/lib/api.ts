@@ -58,6 +58,9 @@ export type Node = {
   hostname?: string
   ip?: string
   remark?: string
+  /** 公开备注:hub 已把源文本(Markdown/HTML)渲染成 HTML。对匿名访客可见,以
+   * dangerouslySetInnerHTML 渲染(hub 端按受信任管理员内容处理,不净化)。 */
+  public_remark_html?: string
 }
 
 export class ApiError extends Error {
@@ -114,9 +117,16 @@ export function safeNodes(nodes: Node[]): Node[] {
     // 渲染，比留着一个指向不存在国旗的码强；tooltip 那条路径的内容也因此由这里
     // 保证，而不是靠查表顺带限住。
     const placed = typeof node.country !== "string" || ALPHA2.test(node.country)
+    // public_remark_html 只接受字符串;畸形值降级为 undefined(前端据此不渲染)。
+    const remarkOk = node.public_remark_html === undefined || typeof node.public_remark_html === "string"
     // 没有要改的就原样返回：引用相等是下游每 2 秒一帧的成本前提。
-    if (live && placed) return node
-    return { ...node, metrics: live ? m : null, country: placed ? node.country : "" }
+    if (live && placed && remarkOk) return node
+    return {
+      ...node,
+      metrics: live ? m : null,
+      country: placed ? node.country : "",
+      public_remark_html: remarkOk ? node.public_remark_html : undefined,
+    }
   })
 }
 

@@ -94,7 +94,7 @@ npm run build && npm run package-theme
 本来就是残缺的，探测启停、节点掉线、agent 跳过一轮都会再造几个。十三次里丢一次，平均桶百分比会
 算出 50%。
 
-匿名访问 `GET /api/nodes` 仅返回 `public=1` 的节点，响应中不含 `ip`、`ipv4`、`ipv6`、`observed_ip`、`hostname`、`remark`、`agent_version`、`token`，`metrics` 也按白名单裁剪。字段定义以 hub 的 `src/api.rs` 为准。
+匿名访问 `GET /api/nodes` 仅返回 `public=1` 的节点，响应中不含 `ip`、`ipv4`、`ipv6`、`observed_ip`、`hostname`、`remark`、`public_remark`（公开备注源文本）、`agent_version`、`token`，`metrics` 也按白名单裁剪。公开备注以 hub 渲染后的 `public_remark_html`（HTML 字符串）随公开帧下发、匿名可见——它是受信任的管理员内容，hub 端**未净化**，主题以 `dangerouslySetInnerHTML` 渲染；私有 `remark` 仍仅管理员可见。字段定义以 hub 的 `src/api.rs` 为准。
 
 未知路径回落到主题的 `dist/index.html`，客户端路由可用。`/admin/*` 由 hub 内置后台接管，不属于主题契约。
 
